@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0d">
+<title>Garage Manager — บจก.เขาแดงคอนสตรัคชั่น</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer onload="gisScriptLoaded=true"></script>
+<script src="https://apis.google.com/js/api.js" async defer onload="gapiScriptLoaded=true"></script>
+<script>var gisScriptLoaded=false; var gapiScriptLoaded=false;</script>
+
+<style>
+/* ══════════════════════════════════════════════════
+   DESIGN SYSTEM — Industrial Dark / Orange Accent
+   ══════════════════════════════════════════════════ */
+:root {
+  --bg-base: #0d0d0d;
+  --bg-elevated: #161616;
+  --bg-card: #1a1a1a;
+  --bg-card-alt: #1e1e1e;
+  --bg-input: #141414;
+  --border: #252525;
+  --border-light: #303030;
+  
+  --text-primary: #eaeaea;
+  --text-secondary: #909090;
+  --text-tertiary: #585858;
+  --text-inverse: #0d0d0d;
+  
+  --accent: #e87a17;
+  --accent-dim: rgba(232, 122, 23, 0.12);
+  --accent-glow: rgba(232, 122, 23, 0.25);
+  
+  --green: #2dca6b;
+  --green-dim: rgba(45, 202, 107, 0.12);
+  --red: #e5484d;
+  --red-dim: rgba(229, 72, 77, 0.12);
+  --yellow: #f0b429;
+  --yellow-dim: rgba(240, 180, 41, 0.12);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.12);
+  
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tab-h: 64px;
+  
+  --font: 'Noto Sans Thai', 'Sarabun', -apple-system, sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ══════════════════════════════════════════════════
+   LOGIN / SETUP
+   ══════════════════════════════════════════════════ */
+.screen { display: none; height: 100%; }
+.screen.active { display: flex; flex-direction: column; }
+
+#login-screen {
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  text-align: center;
+  background: 
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(232,122,23,0.06) 0%, transparent 60%),
+    var(--bg-base);
+}
+
+.login-logo {
+  width: 88px; height: 88px;
+  background: linear-gradient(135deg, var(--accent), #c45e0a);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 42px;
+  margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(232,122,23,0.25);
+  animation: logoFloat 3s ease-in-out infinite;
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.login-title { font-size: 26px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; }
+.login-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5; }
+.login-company { font-size: 12px; color: var(--text-tertiary); margin-bottom: 36px; }
+
+.input-field {
+  width: 100%; max-width: 380px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-bottom: 10px;
+}
+.input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.input-field::placeholder { color: var(--text-tertiary); }
+
+.login-help {
+  font-size: 11px; color: var(--text-tertiary);
+  max-width: 380px; text-align: left;
+  margin: 6px 0 28px;
+  line-height: 1.6;
+}
+
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; max-width: 380px;
+  padding: 15px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: #d06e12; }
+
+.btn-google {
+  background: #fff; color: #333;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.or-divider {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; max-width: 380px;
+  margin: 4px 0 16px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+.or-divider::before, .or-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ══════════════════════════════════════════════════
+   APP SHELL
+   ══════════════════════════════════════════════════ */
+#app-screen { overflow: hidden; }
+
+/* ── Topbar ── */
+.topbar {
+  flex-shrink: 0;
+  padding: calc(var(--safe-top) + 6px) 18px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,13,13,0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar .menu-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--text-secondary);
+  font-size: 20px; cursor: pointer; border-radius: 8px;
+}
+.topbar .menu-btn:active { background: var(--bg-card); }
+.topbar h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+
+.topbar .fab {
+  width: 40px; height: 40px;
+  background: var(--accent);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 24px; font-weight: 300;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.topbar .fab:active { transform: scale(0.88); }
+
+/* ── Search ── */
+.search-wrap {
+  flex-shrink: 0;
+  padding: 10px 18px;
+}
+.search-box {
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--text-tertiary); }
+.search-box .icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--text-tertiary); font-size: 15px; pointer-events: none;
+}
+
+/* ── Scroll Area ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 12px);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Vehicle List ── */
+.v-list { padding: 2px 14px; }
+
+.v-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.12s;
+  animation: fadeSlide 0.35s ease both;
+}
+.v-item:active { background: var(--bg-card-alt); transform: scale(0.985); }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.v-item .v-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+}
+.brand-hino { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+.brand-isuzu { background: linear-gradient(135deg, #2471a3, #3498db); }
+.brand-sammitr { background: linear-gradient(135deg, #7d3c98, #a569bd); }
+.brand-panus { background: linear-gradient(135deg, #1e8449, #27ae60); }
+.brand-default { background: linear-gradient(135deg, #555, #777); }
+
+.v-item .v-info { flex: 1; min-width: 0; }
+.v-item .v-brand { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; }
+.v-item .v-id { font-size: 16px; font-weight: 800; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-item .v-driver { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-item .v-type { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.v-item .v-dots { color: var(--text-tertiary); font-size: 18px; padding: 4px 2px; flex-shrink: 0; }
+
+/* ── Repair Grid ── */
+.r-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 2px 14px;
+}
+
+.r-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s;
+  animation: fadeSlide 0.35s ease both;
+}
+.r-card:active { transform: scale(0.96); }
+
+.r-thumb {
+  width: 100%; aspect-ratio: 1;
+  background: var(--bg-card-alt);
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.r-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.r-thumb .r-noimg { font-size: 36px; color: var(--text-tertiary); }
+.r-thumb .r-badge {
+  position: absolute; top: 6px; right: 6px;
+  padding: 2px 7px; border-radius: 5px;
+  font-size: 10px; font-weight: 700;
+}
+.badge-open { background: var(--yellow-dim); color: var(--yellow); }
+.badge-closed { background: var(--green-dim); color: var(--green); }
+
+.r-card .r-info { padding: 9px 10px; }
+.r-card .r-title { font-size: 13px; font-weight: 800; }
+.r-card .r-sub { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+
+/* ── Employee List ── */
+.emp-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+  animation: fadeSlide 0.35s ease both;
+}
+.emp-item:active { background: var(--bg-card-alt); }
+.emp-item .emp-name { font-size: 15px; font-weight: 700; }
+.emp-item .emp-nick { font-size: 12px; color: var(--accent); display: inline; margin-left: 6px; }
+.emp-item .emp-meta { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+/* ── Tab Bar ── */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(var(--tab-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(14,14,14,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  z-index: 50;
+}
+.tab-item {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px;
+  background: none; border: none;
+  color: var(--text-tertiary);
+  font-size: 10px; font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: color 0.15s;
+  position: relative;
+}
+.tab-item .tab-ic { font-size: 20px; transition: transform 0.2s; }
+.tab-item.active { color: var(--accent); }
+.tab-item.active .tab-ic { transform: scale(1.1); }
+.tab-item.active::after {
+  content: '';
+  position: absolute; top: 0; left: 25%; right: 25%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 0 0 2px 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   DETAIL VIEW (slide-in panel)
+   ══════════════════════════════════════════════════ */
+.detail-panel {
+  position: fixed; inset: 0;
+  background: var(--bg-base);
+  z-index: 100;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+.detail-panel.open { transform: translateX(0); }
+
+.detail-topbar {
+  flex-shrink: 0;
+  padding: calc(var(--safe-top) + 6px) 16px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,13,13,0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.detail-topbar .back {
+  background: none; border: none;
+  color: var(--accent); font-size: 16px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+  padding: 6px 2px;
+  display: flex; align-items: center; gap: 4px;
+}
+.detail-topbar .edit-btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: var(--font);
+  display: flex; align-items: center; gap: 5px;
+}
+.detail-topbar .edit-btn:active { opacity: 0.85; }
+
+.detail-scroll {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 16px 18px calc(var(--safe-bottom) + 30px);
+}
+
+.d-badge { display: inline-block; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.d-title { font-size: 24px; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.3px; }
+.d-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+.d-section { font-size: 15px; font-weight: 800; margin: 22px 0 10px; }
+
+.d-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.d-row .d-label { font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
+.d-row .d-value { font-size: 13px; font-weight: 600; text-align: right; max-width: 62%; word-break: break-all; }
+
+.d-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.d-box.placeholder { color: var(--text-tertiary); }
+
+.d-date {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 15px;
+  font-size: 13px;
+  margin: 6px 0 14px;
+}
+
+.d-photos {
+  display: flex; gap: 8px;
+  overflow-x: auto; padding: 6px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.d-photos img {
+  height: 90px; width: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.btn-action {
+  display: block; width: 100%;
+  padding: 15px;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 800;
+  font-family: var(--font);
+  cursor: pointer;
+  margin-top: 18px;
+  transition: all 0.12s;
+}
+.btn-action:active { transform: scale(0.97); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-red { background: var(--red); color: #fff; }
+
+/* ══════════════════════════════════════════════════
+   FORM MODAL
+   ══════════════════════════════════════════════════ */
+.form-panel {
+  position: fixed; inset: 0;
+  background: var(--bg-base);
+  z-index: 200;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.form-panel.open { transform: translateY(0); }
+
+.form-topbar {
+  flex-shrink: 0;
+  padding: calc(var(--safe-top) + 6px) 16px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,13,13,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.form-topbar .f-cancel {
+  background: none; border: none;
+  color: var(--text-secondary); font-size: 14px;
+  cursor: pointer; font-family: var(--font); padding: 6px 0;
+}
+.form-topbar h2 { font-size: 17px; font-weight: 800; }
+.form-topbar .f-save {
+  background: none; border: none;
+  color: var(--accent); font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); padding: 6px 0;
+}
+
+.form-scroll {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 16px 18px calc(var(--safe-bottom) + 30px);
+}
+
+.fg { margin-bottom: 16px; }
+.fg label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+.fg input, .fg textarea, .fg select {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--accent); }
+.fg textarea { min-height: 80px; resize: vertical; line-height: 1.6; }
+.fg select { -webkit-appearance: none; }
+
+/* ══════════════════════════════════════════════════
+   DRAWER / SIDEBAR
+   ══════════════════════════════════════════════════ */
+.drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 300;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 270px;
+  background: #111;
+  z-index: 301;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  padding: calc(var(--safe-top) + 24px) 20px 24px;
+}
+.drawer.open { transform: translateX(0); }
+.drawer h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+.drawer .drawer-email { font-size: 11px; color: var(--text-tertiary); margin-bottom: 24px; word-break: break-all; }
+.drawer .d-item {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+}
+.drawer .d-item:active { color: var(--accent); }
+
+/* ══════════════════════════════════════════════════
+   UTILITIES
+   ══════════════════════════════════════════════════ */
+.loading-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 50px 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-msg {
+  text-align: center; padding: 50px 20px;
+  color: var(--text-tertiary);
+}
+.empty-msg .e-icon { font-size: 42px; margin-bottom: 10px; }
+.empty-msg p { font-size: 13px; }
+
+.toast {
+  position: fixed;
+  bottom: calc(var(--tab-h) + var(--safe-bottom) + 14px);
+  left: 50%; transform: translateX(-50%) translateY(80px);
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  z-index: 999;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.t-ok { background: var(--green); color: #fff; }
+.toast.t-err { background: var(--red); color: #fff; }
+.toast.t-info { background: #333; color: #fff; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN SCREEN ═══════ -->
+<div class="screen active" id="login-screen">
+  <div class="login-logo">🔧</div>
+  <div class="login-title">Garage Manager</div>
+  <div class="login-subtitle">ระบบจัดการรถและรายการซ่อม</div>
+  <div class="login-company">บจก.เขาแดงคอนสตรัคชั่น</div>
+  
+  <button class="btn btn-google" id="btn-google-login" onclick="startGoogleLogin()">
+    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    เข้าสู่ระบบด้วย Google
+  </button>
+  
+  <div class="or-divider">หรือใส่ Sheet ID</div>
+  
+  <input type="text" class="input-field" id="input-sheet-id" placeholder="Google Sheet ID">
+  
+  <div class="login-help">
+    คัดลอก Sheet ID จาก URL:<br>
+    docs.google.com/spreadsheets/d/<b>SHEET_ID_HERE</b>/edit
+  </div>
+  
+  <button class="btn btn-accent" id="btn-connect" onclick="manualConnect()">เชื่อมต่อ</button>
+  <button class="btn btn-outline" onclick="loadDemoData()">ใช้ข้อมูลตัวอย่าง / Demo</button>
+</div>
+
+<!-- ═══════ APP SCREEN ═══════ -->
+<div class="screen" id="app-screen">
+  
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="drawer-bg" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <h3>⚙️ ตั้งค่า</h3>
+    <div class="drawer-email" id="drawer-email"></div>
+    <div class="d-item" onclick="refreshData()">🔄 รีเฟรชข้อมูล</div>
+    <div class="d-item" onclick="doLogout()">🚪 ออกจากระบบ</div>
+  </div>
+  
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleDrawer()">☰</button>
+      <h1 id="topbar-title">รถ</h1>
+    </div>
+    <button class="fab" onclick="openAddForm()">+</button>
+  </div>
+  
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="search" placeholder="ค้นหา..." oninput="onSearch(this.value)">
+    </div>
+  </div>
+  
+  <!-- Scrollable Content -->
+  <div class="scroll-area">
+    <div class="tab-panel active" id="panel-vehicles">
+      <div class="v-list" id="vehicle-list"></div>
+    </div>
+    <div class="tab-panel" id="panel-repairs">
+      <div class="r-grid" id="repair-grid"></div>
+    </div>
+    <div class="tab-panel" id="panel-employees">
+      <div class="v-list" id="emp-list"></div>
+    </div>
+  </div>
+  
+  <!-- Tab Bar -->
+  <div class="tabbar">
+    <button class="tab-item active" data-t="vehicles" onclick="switchTab('vehicles')">
+      <span class="tab-ic">🚛</span><span>เครื่องจักร</span>
+    </button>
+    <button class="tab-item" data-t="repairs" onclick="switchTab('repairs')">
+      <span class="tab-ic">🔧</span><span>รายการซ่อม</span>
+    </button>
+    <button class="tab-item" data-t="employees" onclick="switchTab('employees')">
+      <span class="tab-ic">👥</span><span>พนักงาน</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ DETAIL PANEL ═══════ -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-topbar">
+    <button class="back" onclick="closeDetail()">← กลับ</button>
+    <button class="edit-btn" id="detail-edit-btn" onclick="editCurrent()">✏️ แก้ไข</button>
+  </div>
+  <div class="detail-scroll" id="detail-body"></div>
+</div>
+
+<!-- ═══════ FORM PANEL ═══════ -->
+<div class="form-panel" id="form-panel">
+  <div class="form-topbar">
+    <button class="f-cancel" onclick="closeForm()">ยกเลิก</button>
+    <h2 id="form-title">เพิ่มข้อมูล</h2>
+    <button class="f-save" onclick="saveForm()">บันทึก</button>
+  </div>
+  <div class="form-scroll" id="form-body"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CONFIGURATION — User must set CLIENT_ID
+   ══════════════════════════════════════════════════ */
+// ★★★ PASTE YOUR GOOGLE OAUTH CLIENT ID HERE ★★★
+const CLIENT_ID = '836185310307-oqg5ig54lnrasqkpirj99em0pg189f0k.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+
+/* ══════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════ */
+const S = {
+  sheetId: '',
+  token: null,
+  userEmail: '',
+  tab: 'vehicles',
+  vehicles: [],
+  repairs: [],
+  photos: [],
+  employees: [],
+  currentItem: null,
+  currentType: null,
+  editMode: null,
+  isDemo: false,
+  gapiReady: false,
+  gisReady: false,
+  tokenClient: null,
+};
+
+// Sheet tab names matching the user's actual sheet
+const SHEET = {
+  vehicles: 'รถ',
+  repairs: 'ข้อมูลการซ่อม',
+  photos: 'แนบรูปรถ',
+  employees: 'รายชื่อพนักงาน',
+};
+
+/* ══════════════════════════════════════════════════
+   GOOGLE AUTH & API INIT
+   ══════════════════════════════════════════════════ */
+let gapiInited = false;
+let gisInited = false;
+
+async function initGapi() {
+  try {
+    await new Promise((resolve, reject) => {
+      gapi.load('client', { callback: resolve, onerror: reject });
+    });
+    await gapi.client.init({});
+    await gapi.client.load('https://sheets.googleapis.com/$discovery/rest?version=v4');
+    gapiInited = true;
+    console.log('GAPI ready');
+    checkReady();
+  } catch(e) {
+    console.error('GAPI init failed:', e);
+    toast('GAPI โหลดล้มเหลว', 'err');
+  }
+}
+
+function initGis() {
+  try {
+    S.tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: handleTokenResponse,
+    });
+    gisInited = true;
+    console.log('GIS ready');
+    checkReady();
+  } catch(e) {
+    console.error('GIS init failed:', e);
+    toast('GIS โหลดล้มเหลว', 'err');
+  }
+}
+
+function checkReady() {
+  if (gapiInited && gisInited) {
+    document.getElementById('btn-google-login').disabled = false;
+    document.getElementById('btn-google-login').querySelector('span') && 
+      (document.getElementById('btn-google-login').innerHTML = document.getElementById('btn-google-login').innerHTML.replace('กำลังโหลด...', 'เข้าสู่ระบบด้วย Google'));
+    console.log('All APIs ready — login enabled');
+  }
+}
+
+function handleTokenResponse(resp) {
+  if (resp.error) {
+    console.error('Token error:', resp);
+    toast('การเข้าสู่ระบบล้มเหลว: ' + (resp.error_description || resp.error), 'err');
+    return;
+  }
+  S.token = resp.access_token;
+  console.log('Got token successfully');
+  // Get user email
+  fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { 'Authorization': 'Bearer ' + S.token }
+  })
+  .then(r => r.json())
+  .then(info => {
+    S.userEmail = info.email || '';
+    document.getElementById('drawer-email').textContent = S.userEmail;
+  })
+  .catch(() => {});
+  
+  afterAuth();
+}
+
+function startGoogleLogin() {
+  if (!gapiInited || !gisInited) {
+    toast('กำลังโหลด API กรุณารอสักครู่...', 'info');
+    // Try to init again
+    if (typeof gapi !== 'undefined' && !gapiInited) initGapi();
+    if (typeof google !== 'undefined' && google.accounts && !gisInited) initGis();
+    return;
+  }
+  
+  try {
+    S.tokenClient.requestAccessToken({ prompt: '' });
+  } catch(e) {
+    // If first time, need consent
+    try {
+      S.tokenClient.requestAccessToken({ prompt: 'consent' });
+    } catch(e2) {
+      console.error('Login failed:', e2);
+      toast('เข้าสู่ระบบล้มเหลว', 'err');
+    }
+  }
+}
+
+async function afterAuth() {
+  // Try to get sheetId from input or saved
+  let sid = document.getElementById('input-sheet-id').value.trim();
+  if (!sid) {
+    try { sid = localStorage.getItem('g_sheetId') || ''; } catch(e) {}
+  }
+  if (!sid) {
+    toast('กรุณาใส่ Sheet ID ก่อน', 'err');
+    return;
+  }
+  S.sheetId = sid;
+  try { localStorage.setItem('g_sheetId', sid); } catch(e) {}
+  
+  showScreen('app-screen');
+  toast('กำลังโหลดข้อมูล...', 'info');
+  
+  try {
+    await fetchAllData();
+    renderAll();
+    toast('โหลดสำเร็จ ✓', 'ok');
+  } catch(e) {
+    toast('โหลดล้มเหลว: ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+function manualConnect() {
+  const sid = document.getElementById('input-sheet-id').value.trim();
+  if (!sid) { toast('กรุณาใส่ Sheet ID', 'err'); return; }
+  S.sheetId = sid;
+  try { localStorage.setItem('g_sheetId', sid); } catch(e) {}
+  
+  if (S.token) {
+    afterAuth();
+  } else {
+    startGoogleLogin();
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   GOOGLE SHEETS DATA
+   ══════════════════════════════════════════════════ */
+async function gFetch(range) {
+  const resp = await gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: S.sheetId,
+    range: range,
+  });
+  return resp.result.values || [];
+}
+
+async function gAppend(sheetName, values) {
+  await gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId: S.sheetId,
+    range: sheetName,
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [values] },
+  });
+}
+
+async function gUpdate(sheetName, row, values) {
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: S.sheetId,
+    range: `'${sheetName}'!A${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [values] },
+  });
+}
+
+function rowsToObj(rows, skipTitleRow = false) {
+  if (!rows || rows.length < 2) return [];
+  // If there's a title row before headers, skip it
+  if (skipTitleRow && rows.length >= 3) {
+    rows = rows.slice(1);
+  }
+  const h = rows[0];
+  // Find the first row that looks like a header (has multiple non-empty cells)
+  return rows.slice(1).map((r, i) => {
+    const o = { _row: i + (skipTitleRow ? 3 : 2) }; // Adjust row number for sheet updates
+    h.forEach((k, j) => { 
+      if (k && k.trim()) {
+        o[k.trim()] = (r[j] || '').toString(); 
+      }
+    });
+    return o;
+  });
+}
+
+async function fetchAllData() {
+  if (S.isDemo) return;
+  const [vRows, rRows, pRows, eRows] = await Promise.all([
+    gFetch(SHEET.vehicles),
+    gFetch(SHEET.repairs),
+    gFetch(SHEET.photos),
+    gFetch(SHEET.employees),
+  ]);
+  
+  // Debug: log first row of each sheet to see headers
+  console.log('Vehicle headers:', vRows[0], vRows[1]);
+  console.log('Repair headers:', rRows[0]);
+  console.log('Photo headers:', pRows[0]);
+  console.log('Employee headers:', eRows[0]);
+  
+  // รถ sheet has a company title on row 1, headers on row 2
+  S.vehicles = rowsToObj(vRows, true);
+  // Other sheets have headers on row 1
+  S.repairs = rowsToObj(rRows, false);
+  S.photos = rowsToObj(pRows, false);
+  S.employees = rowsToObj(eRows, false);
+  
+  console.log('Loaded vehicles:', S.vehicles.length, S.vehicles[0]);
+  console.log('Loaded repairs:', S.repairs.length, S.repairs[0]);
+  console.log('Loaded employees:', S.employees.length, S.employees[0]);
+}
+
+/* ══════════════════════════════════════════════════
+   DEMO DATA
+   ══════════════════════════════════════════════════ */
+function loadDemoData() {
+  S.isDemo = true;
+  S.vehicles = [
+    { ประเภท:'รถสิบล้อ', ทะเบียน:'82-8656', รหัสรถ:'DT-16', แผ้ม:'✓', ยี่ห้อ:'HINO', รุ่น:'380', GPS:'ntech', ชื่อคนขับ:'นายเดชา เบ็ญจำหีม', ติดไฟแนนท์:'ผ่อน', จดชั้น:'', หมายเหตุ:'', เลขตัสซี:'MNKFM1AN1XHX10943', เลขเครื่องยนต์:'A09CTHH52313', _row:2 },
+    { ประเภท:'รถสิบล้อ', ทะเบียน:'82-9498', รหัสรถ:'DT-17', แผ้ม:'✓', ยี่ห้อ:'ISUZU', รุ่น:'240', GPS:'ntech', ชื่อคนขับ:'นายสว่าง แสงระวี', ติดไฟแนนท์:'เงินติดล้อ', จดชั้น:'', หมายเหตุ:'', เลขตัสซี:'MP1FVZ2347MT000148', เลขเครื่องยนต์:'6HK1 XW3782', _row:3 },
+    { ประเภท:'รถสิบล้อ', ทะเบียน:'80-9160', รหัสรถ:'รถรับฝุ่น', แผ้ม:'✓', ยี่ห้อ:'HINO', รุ่น:'195', GPS:'onelink', ชื่อคนขับ:'นายวิสิษณ์ ณรงค์รัตน์', ติดไฟแนนท์:'มีเล่ม', จดชั้น:'', หมายเหตุ:'โรงงานแอสฟัลท์', เลขตัสซี:'FM3HNLA-11100', เลขเครื่องยนต์:'H07D-A124808', _row:4 },
+    { ประเภท:'หัวพ่วง', ทะเบียน:'82-8080', รหัสรถ:'DT-19', แผ้ม:'✓', ยี่ห้อ:'ISUZU', รุ่น:'360', GPS:'onelink', ชื่อคนขับ:'นายอนันต์ คือราแม', ติดไฟแนนท์:'', จดชั้น:'', หมายเหตุ:'', เลขตัสซี:'MP1FXZ77NJT003874', เลขเครื่องยนต์:'6UZ1 VW 3890', _row:5 },
+    { ประเภท:'หัวพ่วง', ทะเบียน:'82-9499', รหัสรถ:'DT-23', แผ้ม:'✓', ยี่ห้อ:'ISUZU', รุ่น:'360', GPS:'ntech', ชื่อคนขับ:'นายซุลกิฟลี บาสอ', ติดไฟแนนท์:'', จดชั้น:'', หมายเหตุ:'', เลขตัสซี:'MP1FXZ777MT000125', เลขเครื่องยนต์:'6UZ1YB8543', _row:6 },
+    { ประเภท:'หัวพ่วง', ทะเบียน:'82-4644', รหัสรถ:'DT-25', แผ้ม:'✓', ยี่ห้อ:'HINO', รุ่น:'380', GPS:'ntech', ชื่อคนขับ:'-', ติดไฟแนนท์:'', จดชั้น:'ทส.ชุดชน / ชั้น2', หมายเหตุ:'', เลขตัสซี:'MNKFM2PN1XHX10054', เลขเครื่องยนต์:'P11CVUH 50180', _row:7 },
+    { ประเภท:'หัวพ่วง', ทะเบียน:'82-4646', รหัสรถ:'DT-26', แผ้ม:'✓', ยี่ห้อ:'HINO', รุ่น:'380', GPS:'ntech', ชื่อคนขับ:'นายเอกชัย เชิง', ติดไฟแนนท์:'', จดชั้น:'ทส.ชุดชน / ชั้น2', หมายเหตุ:'', เลขตัสซี:'MNKFM2PN1XHX10060', เลขเครื่องยนต์:'P11CVUH 50194', _row:8 },
+    { ประเภท:'หางพ่วง', ทะเบียน:'81-7916', รหัสรถ:'DTT-19', แผ้ม:'✓', ยี่ห้อ:'SAMMITR', รุ่น:'SMM130062', GPS:'onelink', ชื่อคนขับ:'นายอนันต์ คือราแม', ติดไฟแนนท์:'เงินติดล้อ', จดชั้น:'', หมายเหตุ:'', เลขตัสซี:'', เลขเครื่องยนต์:'SMM 130062-0107', _row:9 },
+  ];
+  S.repairs = [
+    { สถานที่ซ่อม:'โรงซ่อมเขาแดง', ทะเบียน:'', ชื่อคนขับ:'', รหัสรถ:'RCC-02', วันที่แจ้งซ่อม:'2025-10-10T08:00:00', เข้าซ่อม:'', อาการเสีย:'• ประกอบเป๋าโรงปูน 3 เป๋า\n• ตัวกันชีลเป๋าปิดถัง\n• ตัดซื้อโซ่สายพานดึงปูน\n• แผ่นยางกันปูน\n• ปุ่มล็อคคันเร่ง\n• ชุดซ่อมผ่ากียร์', รายการจัดซื้อ:'ยางกระชุกรุง (รอรับอะไหล่ประมาณ 15 วัน (30-01-69))', ผลการซ่อม:'• ประกอบชุดเป๋าโรงปูน 3 เป๋า\nวท.17/11/68 สั่งอะไหล่จากช่างพื้นแล้ว...', กำหนดซ่อมเสร็จ:'2026-02-02T17:00:00.000Z', ช่างผู้รับผิดชอบ:'ช่างมุข', สถานะ:'เปิด', รูปแนบ:'', _row:2 },
+    { สถานที่ซ่อม:'โรงซ่อมหาดใหญ่', ทะเบียน:'82-5727', ชื่อคนขับ:'ช่างเก่ง', รหัสรถ:'ชว-97', วันที่แจ้งซ่อม:'2025-11-20T09:00', เข้าซ่อม:'', อาการเสีย:'• เปลี่ยนยาง\n• เช็คเครื่อง', รายการจัดซื้อ:'ยางนอก 4 เส้น', ผลการซ่อม:'', กำหนดซ่อมเสร็จ:'2026-01-25T12:00', ช่างผู้รับผิดชอบ:'แม็ก', สถานะ:'เปิด', รูปแนบ:'', _row:3 },
+    { สถานที่ซ่อม:'โรงซ่อมเขาแดง', ทะเบียน:'คค-4501', ชื่อคนขับ:'', รหัสรถ:'BH-18', วันที่แจ้งซ่อม:'2025-12-01T10:00', เข้าซ่อม:'', อาการเสีย:'• เปลี่ยนน้ำมันเครื่อง\n• เช็คแอร์', รายการจัดซื้อ:'น้ำมันเครื่อง 8L', ผลการซ่อม:'เสร็จแล้ว', กำหนดซ่อมเสร็จ:'2025-12-05T15:00', ช่างผู้รับผิดชอบ:'แม็ก', สถานะ:'ปิด', รูปแนบ:'', _row:4 },
+    { สถานที่ซ่อม:'อู่นอก', ทะเบียน:'คค-2473', ชื่อคนขับ:'', รหัสรถ:'MG-04', วันที่แจ้งซ่อม:'2025-12-10T08:00', เข้าซ่อม:'', อาการเสีย:'• ระบบไฟฟ้า\n• เช็คแบตเตอรี่', รายการจัดซื้อ:'', ผลการซ่อม:'', กำหนดซ่อมเสร็จ:'', ช่างผู้รับผิดชอบ:'ช่างเก่ง', สถานะ:'เปิด', รูปแนบ:'', _row:5 },
+  ];
+  S.photos = [
+    { รหัสรถ:'DT-19', รูปซ่อมรถ:'https://via.placeholder.com/300x200/333/888?text=DT-19' },
+    { รหัสรถ:'RC-03', รูปซ่อมรถ:'https://via.placeholder.com/300x200/333/888?text=RC-03' },
+  ];
+  S.employees = [
+    { ชื่อพนักงาน:'นาย อาชัน สันจิตร', ชื่อเล่น:'พี่ชัน', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'สโตร์', สังกัด:'KD', ตำแหน่ง:'ผู้จัดการโรงซ่อม', วันที่เริ่มงาน:'6/10/24', _row:2 },
+    { ชื่อพนักงาน:'นาย ปิยพัทธ์ พรหมดวง', ชื่อเล่น:'เอ็กซ์', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'สโตร์', สังกัด:'KDC', ตำแหน่ง:'พนักงานสโตร์', วันที่เริ่มงาน:'2/16/20', _row:3 },
+    { ชื่อพนักงาน:'นาย สมเดช ขื่นนอก', ชื่อเล่น:'ช่างเดช', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'ช่างยนต์', สังกัด:'KD', ตำแหน่ง:'ช่างยนต์', วันที่เริ่มงาน:'1/8/99', _row:4 },
+    { ชื่อพนักงาน:'นาย หนูรัด หล่อแหลม', ชื่อเล่น:'ช่างพัน', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'ช่างยนต์', สังกัด:'KD', ตำแหน่ง:'ช่างยนต์', วันที่เริ่มงาน:'7/5/13', _row:5 },
+    { ชื่อพนักงาน:'นายอิบรอฮีม หมัดสุข', ชื่อเล่น:'แม็ก', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'ช่างยนต์', สังกัด:'KDC', ตำแหน่ง:'ผู้ช่วยช่างยนต์', วันที่เริ่มงาน:'3/1/23', _row:6 },
+    { ชื่อพนักงาน:'นายวัฒนากร จำนงค์จิตร', ชื่อเล่น:'ช่างนัส', แผนก:'02-ชุดโรงซ่อม', ฝ่าย:'ช่างแอร์', สังกัด:'KDC', ตำแหน่ง:'ช่างแอร์', วันที่เริ่มงาน:'6/2/25', _row:7 },
+  ];
+  
+  document.getElementById('drawer-email').textContent = 'Demo Mode';
+  showScreen('app-screen');
+  renderAll();
+  toast('โหลดข้อมูลตัวอย่างแล้ว', 'ok');
+}
+
+/* ══════════════════════════════════════════════════
+   SCREEN MANAGEMENT
+   ══════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════════════ */
+function renderAll() {
+  renderVehicles(S.vehicles);
+  renderRepairs(S.repairs);
+  renderEmployees(S.employees);
+}
+
+function brandClass(b) {
+  const bl = (b||'').toLowerCase();
+  if (bl.includes('hino')) return 'brand-hino';
+  if (bl.includes('isuzu')) return 'brand-isuzu';
+  if (bl.includes('sammitr')) return 'brand-sammitr';
+  if (bl.includes('panus')) return 'brand-panus';
+  return 'brand-default';
+}
+
+function renderVehicles(list) {
+  const el = document.getElementById('vehicle-list');
+  if (!list.length) { el.innerHTML = '<div class="empty-msg"><div class="e-icon">🚛</div><p>ยังไม่มีข้อมูลรถ</p></div>'; return; }
+  el.innerHTML = list.map((v,i) => `
+    <div class="v-item" onclick="openVehicle(${S.vehicles.indexOf(v)})" style="animation-delay:${i*0.03}s">
+      <div class="v-icon ${brandClass(v['ยี่ห้อ'])}">${(v['ยี่ห้อ']||'?').slice(0,3)}</div>
+      <div class="v-info">
+        <div class="v-brand">${v['ยี่ห้อ']||''}</div>
+        <div class="v-id">${v['รหัสรถ']||''}</div>
+        <div class="v-driver">${v['ชื่อคนขับ']||'-'}</div>
+        <div class="v-type">${v['ประเภท']||''} · ${v['ทะเบียน']||''}</div>
+      </div>
+      <span class="v-dots">⋯</span>
+    </div>
+  `).join('');
+}
+
+function renderRepairs(list) {
+  const el = document.getElementById('repair-grid');
+  if (!list.length) { el.innerHTML = '<div class="empty-msg" style="grid-column:1/-1"><div class="e-icon">🔧</div><p>ยังไม่มีรายการซ่อม</p></div>'; return; }
+  el.innerHTML = list.map((r,i) => {
+    const closed = (r['สถานะ']||'').includes('ปิด');
+    // Find matching photo
+    const photo = S.photos.find(p => p['รหัสรถ'] === r['รหัสรถ']);
+    const imgUrl = r['รูปแนบ'] || (photo ? photo['รูปซ่อมรถ'] : '');
+    return `
+    <div class="r-card" onclick="openRepair(${S.repairs.indexOf(r)})" style="animation-delay:${i*0.03}s">
+      <div class="r-thumb">
+        ${imgUrl ? `<img src="${imgUrl}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="r-noimg" style="display:none">📷</span>` : '<span class="r-noimg">📷</span>'}
+        <span class="r-badge ${closed?'badge-closed':'badge-open'}">${closed?'ปิด':'เปิด'}</span>
+      </div>
+      <div class="r-info">
+        <div class="r-title">${r['รหัสรถ']||''}</div>
+        <div class="r-sub">${r['ทะเบียน']||r['สถานที่ซ่อม']||''}</div>
+      </div>
+    </div>
+  `}).join('');
+}
+
+function renderEmployees(list) {
+  const el = document.getElementById('emp-list');
+  if (!list.length) { el.innerHTML = '<div class="empty-msg"><div class="e-icon">👥</div><p>ยังไม่มีข้อมูลพนักงาน</p></div>'; return; }
+  el.innerHTML = list.map((e,i) => `
+    <div class="emp-item" onclick="openEmployee(${S.employees.indexOf(e)})" style="animation-delay:${i*0.03}s">
+      <div>
+        <span class="emp-name">${e['ชื่อพนักงาน']||''}</span>
+        <span class="emp-nick">${e['ชื่อเล่น']||''}</span>
+      </div>
+      <div class="emp-meta">${e['ตำแหน่ง']||''} · ${e['ฝ่าย']||''} · ${e['สังกัด']||''}</div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   TAB & SEARCH
+   ══════════════════════════════════════════════════ */
+function switchTab(t) {
+  S.tab = t;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + t).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  const titles = { vehicles: 'รถ', repairs: 'รายการซ่อม', employees: 'พนักงาน' };
+  document.getElementById('topbar-title').textContent = titles[t];
+  document.getElementById('search').value = '';
+  renderAll();
+}
+
+function onSearch(q) {
+  q = q.toLowerCase();
+  if (S.tab === 'vehicles') {
+    renderVehicles(S.vehicles.filter(v =>
+      [v['ยี่ห้อ'],v['รหัสรถ'],v['ชื่อคนขับ'],v['ทะเบียน'],v['ประเภท']].join(' ').toLowerCase().includes(q)
+    ));
+  } else if (S.tab === 'repairs') {
+    renderRepairs(S.repairs.filter(r =>
+      [r['รหัสรถ'],r['ทะเบียน'],r['ช่างผู้รับผิดชอบ'],r['สถานะ'],r['สถานที่ซ่อม']].join(' ').toLowerCase().includes(q)
+    ));
+  } else {
+    renderEmployees(S.employees.filter(e =>
+      [e['ชื่อพนักงาน'],e['ชื่อเล่น'],e['ตำแหน่ง'],e['ฝ่าย']].join(' ').toLowerCase().includes(q)
+    ));
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   DETAIL VIEWS
+   ══════════════════════════════════════════════════ */
+function openVehicle(idx) {
+  const v = S.vehicles[idx];
+  S.currentItem = v; S.currentType = 'vehicle';
+  const photos = S.photos.filter(p => p['รหัสรถ'] === v['รหัสรถ']);
+  
+  document.getElementById('detail-body').innerHTML = `
+    <div class="d-badge">${v['ทะเบียน']}</div>
+    <div class="d-title">${v['รหัสรถ']}</div>
+    <div class="d-subtitle">${v['ชื่อคนขับ']||'-'}</div>
+    
+    <div class="d-section">ข้อมูลทั่วไป</div>
+    <div class="d-row"><span class="d-label">ทะเบียน</span><span class="d-value">${v['ทะเบียน']}</span></div>
+    <div class="d-row"><span class="d-label">ยี่ห้อ</span><span class="d-value">${v['ยี่ห้อ']}</span></div>
+    <div class="d-row"><span class="d-label">ประเภท</span><span class="d-value">${v['ประเภท']}</span></div>
+    <div class="d-row"><span class="d-label">รุ่น</span><span class="d-value">${v['รุ่น']}</span></div>
+    <div class="d-row"><span class="d-label">GPS</span><span class="d-value">${v['GPS']}</span></div>
+    
+    <div class="d-section">ข้อมูลการผ่อน</div>
+    <div class="d-row"><span class="d-label">ติดไฟแนนท์</span><span class="d-value">${v['ติดไฟแนนท์']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">จดชั้น</span><span class="d-value">${v['จดชั้น']||'-'}</span></div>
+    
+    <div class="d-section">ข้อมูลเพิ่มเติม</div>
+    <div class="d-row"><span class="d-label">เลขตัสซี</span><span class="d-value" style="font-size:11px">${v['เลขตัสซี']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">เลขเครื่องยนต์</span><span class="d-value" style="font-size:11px">${v['เลขเครื่องยนต์']||'-'}</span></div>
+    ${v['หมายเหตุ'] ? `<div class="d-row"><span class="d-label">หมายเหตุ</span><span class="d-value">${v['หมายเหตุ']}</span></div>` : ''}
+    
+    ${photos.length ? `
+      <div class="d-section">รูปรถ</div>
+      <div class="d-photos">${photos.map(p => `<img src="${p['รูปซ่อมรถ']}" alt="" onerror="this.style.display='none'">`).join('')}</div>
+    ` : ''}
+  `;
+  document.getElementById('detail-edit-btn').style.display = '';
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function openRepair(idx) {
+  const r = S.repairs[idx];
+  S.currentItem = r; S.currentType = 'repair';
+  const closed = (r['สถานะ']||'').includes('ปิด');
+  const photo = S.photos.find(p => p['รหัสรถ'] === r['รหัสรถ']);
+  const imgUrl = r['รูปแนบ'] || (photo ? photo['รูปซ่อมรถ'] : '');
+  
+  const symptoms = (r['อาการเสีย']||'').split('\n').filter(s=>s.trim());
+  const results = (r['ผลการซ่อม']||'');
+  
+  let dateStr = r['วันที่แจ้งซ่อม']||'';
+  try { if (dateStr) dateStr = new Date(dateStr).toLocaleString('th-TH'); } catch(e) {}
+  let dueStr = r['กำหนดซ่อมเสร็จ']||'';
+  try { if (dueStr) dueStr = new Date(dueStr).toLocaleString('th-TH'); } catch(e) {}
+  
+  document.getElementById('detail-body').innerHTML = `
+    ${imgUrl ? `<div style="width:100%;aspect-ratio:16/10;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px;background:var(--bg-card)"><img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>` : ''}
+    
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span class="r-badge ${closed?'badge-closed':'badge-open'}" style="font-size:12px">${r['สถานะ']||'เปิด'}</span>
+    </div>
+    <div class="d-title">${r['รหัสรถ']||''}</div>
+    <div class="d-subtitle">${r['สถานที่ซ่อม']||''}</div>
+    
+    <div class="d-section">ข้อมูลรถ</div>
+    <div class="d-row"><span class="d-label">ทะเบียน</span><span class="d-value">${r['ทะเบียน']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">ช่างผู้รับผิดชอบ</span><span class="d-value">${r['ช่างผู้รับผิดชอบ']||'-'}</span></div>
+    
+    ${dateStr ? `<div class="d-section">วันที่แจ้งซ่อม</div><div class="d-date">📅 ${dateStr}</div>` : ''}
+    
+    ${symptoms.length ? `
+      <div class="d-section">อาการเสีย</div>
+      <div class="d-box">${symptoms.join('\n')}</div>
+    ` : ''}
+    
+    ${r['รายการจัดซื้อ'] ? `<div class="d-section">รายการจัดซื้อ</div><div class="d-box">${r['รายการจัดซื้อ']}</div>` : ''}
+    
+    ${results ? `<div class="d-section">ผลการซ่อม</div><div class="d-box">${results}</div>` : ''}
+    
+    ${dueStr ? `<div class="d-section">กำหนดซ่อมเสร็จ</div><div class="d-date">📅 ${dueStr}</div>` : ''}
+    
+    ${!closed
+      ? `<button class="btn-action btn-green" onclick="toggleRepairStatus(${idx})">ปิดงาน</button>`
+      : `<button class="btn-action btn-red" onclick="toggleRepairStatus(${idx})">เปิดงานอีกครั้ง</button>`
+    }
+  `;
+  document.getElementById('detail-edit-btn').style.display = '';
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function openEmployee(idx) {
+  const e = S.employees[idx];
+  S.currentItem = e; S.currentType = 'employee';
+  
+  document.getElementById('detail-body').innerHTML = `
+    <div class="d-title">${e['ชื่อพนักงาน']||''}</div>
+    <div class="d-subtitle">ชื่อเล่น: ${e['ชื่อเล่น']||'-'}</div>
+    
+    <div class="d-section">ข้อมูลงาน</div>
+    <div class="d-row"><span class="d-label">แผนก</span><span class="d-value">${e['แผนก']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">ฝ่าย</span><span class="d-value">${e['ฝ่าย']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">สังกัด</span><span class="d-value">${e['สังกัด']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">ตำแหน่ง</span><span class="d-value">${e['ตำแหน่ง']||'-'}</span></div>
+    <div class="d-row"><span class="d-label">วันที่เริ่มงาน</span><span class="d-value">${e['วันที่เริ่มงาน']||'-'}</span></div>
+  `;
+  document.getElementById('detail-edit-btn').style.display = '';
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  S.currentItem = null; S.currentType = null;
+}
+
+/* ══════════════════════════════════════════════════
+   STATUS TOGGLE
+   ══════════════════════════════════════════════════ */
+async function toggleRepairStatus(idx) {
+  const r = S.repairs[idx];
+  const wasClosed = (r['สถานะ']||'').includes('ปิด');
+  r['สถานะ'] = wasClosed ? 'เปิด' : 'ปิด';
+  
+  if (!S.isDemo) {
+    try {
+      // Build values in correct column order for ข้อมูลการซ่อม
+      const headers = ['สถานที่ซ่อม','ทะเบียน','ชื่อคนขับ','รหัสรถ','วันที่แจ้งซ่อม','เข้าซ่อม','อาการเสีย','รายการจัดซื้อ','ผลการซ่อม','กำหนดซ่อมเสร็จ','ช่างผู้รับผิดชอบ','สถานะ','รูปแนบ'];
+      const vals = headers.map(h => r[h] || '');
+      await gUpdate(SHEET.repairs, r._row, vals);
+    } catch(e) { toast('อัพเดทล้มเหลว', 'err'); return; }
+  }
+  
+  closeDetail();
+  renderRepairs(S.repairs);
+  toast(wasClosed ? 'เปิดงานแล้ว' : 'ปิดงานแล้ว ✓', 'ok');
+}
+
+/* ══════════════════════════════════════════════════
+   ADD / EDIT FORMS
+   ══════════════════════════════════════════════════ */
+function openAddForm() {
+  S.editMode = S.tab === 'vehicles' ? 'vehicle' : S.tab === 'repairs' ? 'repair' : 'employee';
+  S.currentItem = null;
+  buildForm();
+  document.getElementById('form-panel').classList.add('open');
+}
+
+function editCurrent() {
+  S.editMode = S.currentType;
+  buildForm();
+  document.getElementById('form-panel').classList.add('open');
+}
+
+function buildForm() {
+  const item = S.currentItem;
+  const isEdit = !!item;
+  document.getElementById('form-title').textContent = isEdit ? 'แก้ไข' : 'เพิ่มข้อมูล';
+  const fb = document.getElementById('form-body');
+  
+  if (S.editMode === 'vehicle') {
+    fb.innerHTML = `
+      <div class="fg"><label>ประเภท</label><select id="f-type">
+        ${['รถสิบล้อ','หัวพ่วง','หางพ่วง','รถสิบล้อ'].map(t => `<option ${item?.['ประเภท']===t?'selected':''}>${t}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>ทะเบียน</label><input id="f-reg" value="${item?.['ทะเบียน']||''}"></div>
+      <div class="fg"><label>รหัสรถ</label><input id="f-vid" value="${item?.['รหัสรถ']||''}"></div>
+      <div class="fg"><label>ยี่ห้อ</label><select id="f-brand">
+        ${['HINO','ISUZU','SAMMITR','PANUS'].map(b => `<option ${item?.['ยี่ห้อ']===b?'selected':''}>${b}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>รุ่น</label><input id="f-model" value="${item?.['รุ่น']||''}"></div>
+      <div class="fg"><label>GPS</label><input id="f-gps" value="${item?.['GPS']||''}"></div>
+      <div class="fg"><label>ชื่อคนขับ</label><input id="f-driver" value="${item?.['ชื่อคนขับ']||''}"></div>
+      <div class="fg"><label>ติดไฟแนนท์</label><input id="f-fin" value="${item?.['ติดไฟแนนท์']||''}"></div>
+      <div class="fg"><label>จดชั้น</label><input id="f-class" value="${item?.['จดชั้น']||''}"></div>
+      <div class="fg"><label>หมายเหตุ</label><input id="f-note" value="${item?.['หมายเหตุ']||''}"></div>
+      <div class="fg"><label>เลขตัสซี</label><input id="f-chassis" value="${item?.['เลขตัสซี']||''}"></div>
+      <div class="fg"><label>เลขเครื่องยนต์</label><input id="f-engine" value="${item?.['เลขเครื่องยนต์']||''}"></div>
+    `;
+  } else if (S.editMode === 'repair') {
+    fb.innerHTML = `
+      <div class="fg"><label>สถานที่ซ่อม</label><input id="f-rloc" value="${item?.['สถานที่ซ่อม']||''}"></div>
+      <div class="fg"><label>ทะเบียน</label><input id="f-rreg" value="${item?.['ทะเบียน']||''}"></div>
+      <div class="fg"><label>ชื่อคนขับ</label><input id="f-rdriver" value="${item?.['ชื่อคนขับ']||''}"></div>
+      <div class="fg"><label>รหัสรถ</label><input id="f-rvid" value="${item?.['รหัสรถ']||''}"></div>
+      <div class="fg"><label>วันที่แจ้งซ่อม</label><input id="f-rdate" type="datetime-local" value="${item?.['วันที่แจ้งซ่อม']?.slice(0,16)||''}"></div>
+      <div class="fg"><label>อาการเสีย</label><textarea id="f-rsymp">${item?.['อาการเสีย']||''}</textarea></div>
+      <div class="fg"><label>รายการจัดซื้อ</label><textarea id="f-rparts">${item?.['รายการจัดซื้อ']||''}</textarea></div>
+      <div class="fg"><label>ผลการซ่อม</label><textarea id="f-rresult">${item?.['ผลการซ่อม']||''}</textarea></div>
+      <div class="fg"><label>กำหนดซ่อมเสร็จ</label><input id="f-rdue" type="datetime-local" value="${item?.['กำหนดซ่อมเสร็จ']?.slice(0,16)||''}"></div>
+      <div class="fg"><label>ช่างผู้รับผิดชอบ</label><input id="f-rmech" value="${item?.['ช่างผู้รับผิดชอบ']||''}"></div>
+    `;
+  } else {
+    fb.innerHTML = `
+      <div class="fg"><label>ชื่อพนักงาน</label><input id="f-ename" value="${item?.['ชื่อพนักงาน']||''}"></div>
+      <div class="fg"><label>ชื่อเล่น</label><input id="f-enick" value="${item?.['ชื่อเล่น']||''}"></div>
+      <div class="fg"><label>แผนก</label><input id="f-edept" value="${item?.['แผนก']||''}"></div>
+      <div class="fg"><label>ฝ่าย</label><input id="f-ediv" value="${item?.['ฝ่าย']||''}"></div>
+      <div class="fg"><label>สังกัด</label><input id="f-eaff" value="${item?.['สังกัด']||''}"></div>
+      <div class="fg"><label>ตำแหน่ง</label><input id="f-epos" value="${item?.['ตำแหน่ง']||''}"></div>
+      <div class="fg"><label>วันที่เริ่มงาน</label><input id="f-estart" value="${item?.['วันที่เริ่มงาน']||''}"></div>
+    `;
+  }
+}
+
+async function saveForm() {
+  const isEdit = !!S.currentItem;
+  
+  try {
+    if (S.editMode === 'vehicle') {
+      const vals = [
+        _v('f-type'), _v('f-reg'), _v('f-vid'), '✓',
+        _v('f-brand'), _v('f-model'), _v('f-gps'),
+        _v('f-driver'), _v('f-fin'), _v('f-class'), _v('f-note'),
+        _v('f-chassis'), _v('f-engine'),
+      ];
+      if (isEdit) {
+        const h = ['ประเภท','ทะเบียน','รหัสรถ','แผ้ม','ยี่ห้อ','รุ่น','GPS','ชื่อคนขับ','ติดไฟแนนท์','จดชั้น','หมายเหตุ','เลขตัสซี','เลขเครื่องยนต์'];
+        h.forEach((k,i) => S.currentItem[k] = vals[i]);
+        if (!S.isDemo) await gUpdate(SHEET.vehicles, S.currentItem._row, vals);
+      } else {
+        const nv = { ประเภท:vals[0], ทะเบียน:vals[1], รหัสรถ:vals[2], แผ้ม:'✓', ยี่ห้อ:vals[4], รุ่น:vals[5], GPS:vals[6], ชื่อคนขับ:vals[7], ติดไฟแนนท์:vals[8], จดชั้น:vals[9], หมายเหตุ:vals[10], เลขตัสซี:vals[11], เลขเครื่องยนต์:vals[12], _row: S.vehicles.length+2 };
+        S.vehicles.push(nv);
+        if (!S.isDemo) await gAppend(SHEET.vehicles, vals);
+      }
+      renderVehicles(S.vehicles);
+      
+    } else if (S.editMode === 'repair') {
+      const vals = [
+        _v('f-rloc'), _v('f-rreg'), _v('f-rdriver'), _v('f-rvid'),
+        _v('f-rdate'), '', _v('f-rsymp'), _v('f-rparts'), _v('f-rresult'),
+        _v('f-rdue'), _v('f-rmech'),
+        isEdit ? (S.currentItem['สถานะ']||'เปิด') : 'เปิด', '',
+      ];
+      if (isEdit) {
+        const h = ['สถานที่ซ่อม','ทะเบียน','ชื่อคนขับ','รหัสรถ','วันที่แจ้งซ่อม','เข้าซ่อม','อาการเสีย','รายการจัดซื้อ','ผลการซ่อม','กำหนดซ่อมเสร็จ','ช่างผู้รับผิดชอบ','สถานะ','รูปแนบ'];
+        h.forEach((k,i) => S.currentItem[k] = vals[i]);
+        if (!S.isDemo) await gUpdate(SHEET.repairs, S.currentItem._row, vals);
+      } else {
+        const nr = {};
+        ['สถานที่ซ่อม','ทะเบียน','ชื่อคนขับ','รหัสรถ','วันที่แจ้งซ่อม','เข้าซ่อม','อาการเสีย','รายการจัดซื้อ','ผลการซ่อม','กำหนดซ่อมเสร็จ','ช่างผู้รับผิดชอบ','สถานะ','รูปแนบ'].forEach((k,i) => nr[k] = vals[i]);
+        nr._row = S.repairs.length + 2;
+        S.repairs.push(nr);
+        if (!S.isDemo) await gAppend(SHEET.repairs, vals);
+      }
+      renderRepairs(S.repairs);
+      
+    } else {
+      const vals = [_v('f-ename'), _v('f-enick'), _v('f-edept'), _v('f-ediv'), _v('f-eaff'), _v('f-epos'), _v('f-estart')];
+      if (isEdit) {
+        ['ชื่อพนักงาน','ชื่อเล่น','แผนก','ฝ่าย','สังกัด','ตำแหน่ง','วันที่เริ่มงาน'].forEach((k,i) => S.currentItem[k] = vals[i]);
+        if (!S.isDemo) await gUpdate(SHEET.employees, S.currentItem._row, vals);
+      } else {
+        const ne = {};
+        ['ชื่อพนักงาน','ชื่อเล่น','แผนก','ฝ่าย','สังกัด','ตำแหน่ง','วันที่เริ่มงาน'].forEach((k,i) => ne[k] = vals[i]);
+        ne._row = S.employees.length + 2;
+        S.employees.push(ne);
+        if (!S.isDemo) await gAppend(SHEET.employees, vals);
+      }
+      renderEmployees(S.employees);
+    }
+    
+    closeForm();
+    closeDetail();
+    toast('บันทึกสำเร็จ ✓', 'ok');
+  } catch(e) {
+    toast('บันทึกล้มเหลว: ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+function _v(id) { return document.getElementById(id)?.value || ''; }
+
+function closeForm() { document.getElementById('form-panel').classList.remove('open'); }
+
+/* ══════════════════════════════════════════════════
+   DRAWER / ACTIONS
+   ══════════════════════════════════════════════════ */
+function toggleDrawer() {
+  document.getElementById('drawer').classList.toggle('open');
+  document.getElementById('drawer-bg').classList.toggle('open');
+}
+
+async function refreshData() {
+  toggleDrawer();
+  if (S.isDemo) { toast('ใช้ข้อมูลตัวอย่าง', 'info'); return; }
+  toast('กำลังรีเฟรช...', 'info');
+  try {
+    await fetchAllData();
+    renderAll();
+    toast('รีเฟรชสำเร็จ ✓', 'ok');
+  } catch(e) { toast('รีเฟรชล้มเหลว', 'err'); }
+}
+
+function doLogout() {
+  toggleDrawer();
+  S.token = null;
+  if (google?.accounts?.oauth2) {
+    google.accounts.oauth2.revoke(S.token, () => {});
+  }
+  showScreen('login-screen');
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════════ */
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show t-' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = 'toast', 2500);
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  // Try restore sheetId
+  try {
+    const sid = localStorage.getItem('g_sheetId');
+    if (sid) document.getElementById('input-sheet-id').value = sid;
+  } catch(e) {}
+  
+  // Poll for scripts to load, then init
+  let attempts = 0;
+  const poll = setInterval(() => {
+    attempts++;
+    
+    // Init GAPI when ready
+    if (typeof gapi !== 'undefined' && !gapiInited) {
+      initGapi();
+    }
+    
+    // Init GIS when ready
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2 && !gisInited) {
+      initGis();
+    }
+    
+    // Stop polling when both ready or after 30 seconds
+    if ((gapiInited && gisInited) || attempts > 150) {
+      clearInterval(poll);
+      if (!gapiInited || !gisInited) {
+        console.warn('API load timeout. gapi:', typeof gapi !== 'undefined', 'google:', typeof google !== 'undefined');
+        toast('Google API โหลดไม่สำเร็จ ลองรีเฟรชหน้า', 'err');
+      }
+    }
+  }, 200);
+});
+</script>
+</body>
+</html>
